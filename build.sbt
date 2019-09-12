@@ -1,6 +1,6 @@
 name := "cryptoutils"
 
-organization := "com.github.henricook"
+organization := "com.henricook"
 
 version := "1.5.1"
 

@@ -1,4 +1,4 @@
-# cryptoutils [![Build Status](https://travis-ci.org/henricook/cryptoutils.svg?branch=master)](https://travis-ci.org/henricook/cryptoutils) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.henricook/cryptoutils_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.henricook/cryptoutils_2.13)
+# cryptoutils [![Build Status](https://travis-ci.org/henricook/cryptoutils.svg?branch=master)](https://travis-ci.org/henricook/cryptoutils) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.henricook/cryptoutils_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.henricook/cryptoutils_2.13)
 Scala wrappers for JCA/BouncyCastle classes  
 Fork of karasiq/cryptoutils to add Scala 2.13 support 
 
@@ -8,7 +8,7 @@ Add to `build.sbt`:
 libraryDependencies ++= Seq(
   "org.bouncycastle" % "bcprov-jdk15on" % "1.58",
   "org.bouncycastle" % "bcpkix-jdk15on" % "1.58",
-  "com.github.henricook" %% "cryptoutils" % "1.5.1"
+  "com.henricook" %% "cryptoutils" % "1.5.1"
 )
 ```
 
