@@ -1,4 +1,4 @@
-package com.karasiq.tls.internal
+package com.henricook.tls.internal
 
 import java.io.{InputStream, OutputStream}
 import java.net.{InetAddress, Socket, SocketAddress}
@@ -6,14 +6,19 @@ import java.nio.channels.SocketChannel
 
 import org.bouncycastle.crypto.tls.TlsProtocol
 
-final private[tls] class SocketWrapper(connection: Socket, protocol: TlsProtocol) extends Socket {
+final private[tls] class SocketWrapper(
+    connection: Socket,
+    protocol: TlsProtocol
+) extends Socket {
   override def shutdownInput(): Unit = connection.shutdownInput()
 
   override def getSoLinger: Int = connection.getSoLinger
 
-  override def getRemoteSocketAddress: SocketAddress = connection.getRemoteSocketAddress
+  override def getRemoteSocketAddress: SocketAddress =
+    connection.getRemoteSocketAddress
 
-  override def setReceiveBufferSize(size: Int): Unit = connection.setReceiveBufferSize(size)
+  override def setReceiveBufferSize(size: Int): Unit =
+    connection.setReceiveBufferSize(size)
 
   override def getSoTimeout: Int = connection.getSoTimeout
 
@@ -23,7 +28,8 @@ final private[tls] class SocketWrapper(connection: Socket, protocol: TlsProtocol
 
   override def getLocalPort: Int = connection.getLocalPort
 
-  override def setSoLinger(on: Boolean, linger: Int): Unit = connection.setSoLinger(on, linger)
+  override def setSoLinger(on: Boolean, linger: Int): Unit =
+    connection.setSoLinger(on, linger)
 
   override def getReceiveBufferSize: Int = connection.getReceiveBufferSize
 
@@ -31,7 +37,8 @@ final private[tls] class SocketWrapper(connection: Socket, protocol: TlsProtocol
 
   override def setTrafficClass(tc: Int): Unit = connection.setTrafficClass(tc)
 
-  override def getLocalSocketAddress: SocketAddress = connection.getLocalSocketAddress
+  override def getLocalSocketAddress: SocketAddress =
+    connection.getLocalSocketAddress
 
   override def sendUrgentData(data: Int): Unit = connection.sendUrgentData(data)
 
@@ -41,11 +48,17 @@ final private[tls] class SocketWrapper(connection: Socket, protocol: TlsProtocol
 
   override def isBound: Boolean = connection.isBound
 
-  override def setPerformancePreferences(connectionTime: Int, latency: Int, bandwidth: Int): Unit = connection.setPerformancePreferences(connectionTime, latency, bandwidth)
+  override def setPerformancePreferences(
+      connectionTime: Int,
+      latency: Int,
+      bandwidth: Int
+  ): Unit =
+    connection.setPerformancePreferences(connectionTime, latency, bandwidth)
 
   override def getTrafficClass: Int = connection.getTrafficClass
 
-  override def setSoTimeout(timeout: Int): Unit = connection.setSoTimeout(timeout)
+  override def setSoTimeout(timeout: Int): Unit =
+    connection.setSoTimeout(timeout)
 
   override def getOutputStream: OutputStream = protocol.getOutputStream
 
@@ -66,17 +79,21 @@ final private[tls] class SocketWrapper(connection: Socket, protocol: TlsProtocol
 
   override def setTcpNoDelay(on: Boolean): Unit = connection.setTcpNoDelay(on)
 
-  override def setSendBufferSize(size: Int): Unit = connection.setSendBufferSize(size)
+  override def setSendBufferSize(size: Int): Unit =
+    connection.setSendBufferSize(size)
 
-  override def setReuseAddress(on: Boolean): Unit = connection.setReuseAddress(on)
+  override def setReuseAddress(on: Boolean): Unit =
+    connection.setReuseAddress(on)
 
   override def getSendBufferSize: Int = connection.getSendBufferSize
 
   override def isClosed: Boolean = connection.isClosed
 
-  override def connect(endpoint: SocketAddress): Unit = connection.connect(endpoint)
+  override def connect(endpoint: SocketAddress): Unit =
+    connection.connect(endpoint)
 
-  override def connect(endpoint: SocketAddress, timeout: Int): Unit = connection.connect(endpoint, timeout)
+  override def connect(endpoint: SocketAddress, timeout: Int): Unit =
+    connection.connect(endpoint, timeout)
 
   override def getInetAddress: InetAddress = connection.getInetAddress
 

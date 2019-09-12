@@ -1,14 +1,14 @@
 import java.io.ByteArrayOutputStream
 
-import com.karasiq.tls.internal.BCConversions._
-import com.karasiq.tls.internal.TLSUtils
-import com.karasiq.tls.pem.PEM
-import com.karasiq.tls.x509._
-import com.karasiq.tls.x509.crl.CRL
-import com.karasiq.tls.x509.crl.CRLHolder.RevokedCert
-import com.karasiq.tls.x509.ocsp.OCSP
-import com.karasiq.tls.x509.ocsp.OCSP.Status
-import com.karasiq.tls.{TLS, TLSKeyStore}
+import com.henricook.tls.internal.BCConversions._
+import com.henricook.tls.internal.TLSUtils
+import com.henricook.tls.pem.PEM
+import com.henricook.tls.x509._
+import com.henricook.tls.x509.crl.CRL
+import com.henricook.tls.x509.crl.CRLHolder.RevokedCert
+import com.henricook.tls.x509.ocsp.OCSP
+import com.henricook.tls.x509.ocsp.OCSP.Status
+import com.henricook.tls.{TLS, TLSKeyStore}
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.asn1.x509
 import org.bouncycastle.asn1.x509.CRLReason
@@ -19,47 +19,114 @@ class X509Test extends FreeSpec with Matchers {
     val keyGenerator = CertificateGenerator()
 
     "With generated keys" - {
-      val certificationAuthority = keyGenerator.generateEcdsa(X509Utils.subject("Localhost Root CA", "US", "California", "San Francisco", "Karasiq", "Cryptoutils Test Root CA", "karasiq@karasiq.com"), TLSUtils.getEllipticCurve("secp256k1"), extensions = CertExtension.certificationAuthorityExtensions(1))
+      val certificationAuthority = keyGenerator.generateEcdsa(
+        X509Utils.subject(
+          "Localhost Root CA",
+          "US",
+          "California",
+          "San Francisco",
+          "Karasiq",
+          "Cryptoutils Test Root CA",
+          "karasiq@karasiq.com"
+        ),
+        TLSUtils.getEllipticCurve("secp256k1"),
+        extensions = CertExtension.certificationAuthorityExtensions(1)
+      )
 
-      val serverKeySet = keyGenerator.generateKeySet(X509Utils.subject("Localhost Server", "US", "California", "San Francisco", "Karasiq", "Cryptoutils Test Server", "karasiq@karasiq.com"), 2048, 1024, TLSUtils.getEllipticCurve("secp256k1"), Some(certificationAuthority), BigInt(1), extensions = CertExtension.defaultExtensions() ++ Set(CertExtension.crlDistributionUrls(certificationAuthority.certificate, "http://localhost/test.crl")))
+      val serverKeySet = keyGenerator.generateKeySet(
+        X509Utils.subject(
+          "Localhost Server",
+          "US",
+          "California",
+          "San Francisco",
+          "Karasiq",
+          "Cryptoutils Test Server",
+          "karasiq@karasiq.com"
+        ),
+        2048,
+        1024,
+        TLSUtils.getEllipticCurve("secp256k1"),
+        Some(certificationAuthority),
+        BigInt(1),
+        extensions = CertExtension.defaultExtensions() ++ Set(
+          CertExtension.crlDistributionUrls(
+            certificationAuthority.certificate,
+            "http://localhost/test.crl"
+          )
+        )
+      )
 
       "should print certificate" in {
         val encoded = PEM.encode(certificationAuthority.certificate)
         println(encoded)
-        assert(PEM.certificate.fromString(encoded).getSubject == certificationAuthority.certificate.getSubject)
+        assert(
+          PEM.certificate
+            .fromString(encoded)
+            .getSubject == certificationAuthority.certificate.getSubject
+        )
         println(PEM.encode(serverKeySet.ecdsa.get.certificate))
       }
 
       "should print private key" in {
         val encoded = PEM.encode(serverKeySet.rsa.get.key.getPrivate)
         println(encoded)
-        assert(PEM.publicKey.fromString(encoded) == serverKeySet.rsa.get.key.getPublic.toSubjectPublicKeyInfo)
+        assert(
+          PEM.publicKey
+            .fromString(encoded) == serverKeySet.rsa.get.key.getPublic.toSubjectPublicKeyInfo
+        )
       }
 
       "should verify extensions" in {
-        X509Utils.verifyAuthorityIdentifier(serverKeySet.rsa.get.certificate, certificationAuthority.certificate) shouldBe Some(true)
-        X509Utils.verifyPublicKeyIdentifier(serverKeySet.dsa.get.certificate, serverKeySet.dsa.get.key.getPublic.toSubjectPublicKeyInfo) shouldBe Some(true)
-        X509Utils.getPathLengthConstraint(certificationAuthority.certificate) shouldBe Some(1)
-        X509Utils.getCrlDistributionUrls(serverKeySet.ecdsa.get.certificate).toList shouldBe List("http://localhost/test.crl")
+        X509Utils.verifyAuthorityIdentifier(
+          serverKeySet.rsa.get.certificate,
+          certificationAuthority.certificate
+        ) shouldBe Some(true)
+        X509Utils.verifyPublicKeyIdentifier(
+          serverKeySet.dsa.get.certificate,
+          serverKeySet.dsa.get.key.getPublic.toSubjectPublicKeyInfo
+        ) shouldBe Some(true)
+        X509Utils.getPathLengthConstraint(certificationAuthority.certificate) shouldBe Some(
+          1
+        )
+        X509Utils
+          .getCrlDistributionUrls(serverKeySet.ecdsa.get.certificate)
+          .toList shouldBe List("http://localhost/test.crl")
       }
 
       "should sign CSR" in {
         val Some(key: TLS.CertificateKey) = serverKeySet.ecdsa
-        val request = keyGenerator.createRequest(key.key.toKeyPair, key.certificate.getSubject)
+        val request = keyGenerator.createRequest(
+          key.key.toKeyPair,
+          key.certificate.getSubject
+        )
         val encoded = PEM.encode(request)
         println(encoded)
-        PEM.certificationRequest.fromString(encoded).getSubject shouldBe request.getSubject
+        PEM.certificationRequest
+          .fromString(encoded)
+          .getSubject shouldBe request.getSubject
         val cert = keyGenerator.signRequest(request, certificationAuthority)
-        val verifier = CertificateVerifier(CertificateStatusProvider.AlwaysValid, certificationAuthority.certificate)
+        val verifier = CertificateVerifier(
+          CertificateStatusProvider.AlwaysValid,
+          certificationAuthority.certificate
+        )
         assert(verifier.isChainValid(cert.getCertificateList.toList))
-        X509Utils.verifyAuthorityIdentifier(cert.toTlsCertificate, certificationAuthority.certificate) shouldBe Some(true)
-        X509Utils.verifyPublicKeyIdentifier(cert.toTlsCertificate, serverKeySet.ecdsa.get.key.getPublic.toSubjectPublicKeyInfo) shouldBe Some(true)
+        X509Utils.verifyAuthorityIdentifier(
+          cert.toTlsCertificate,
+          certificationAuthority.certificate
+        ) shouldBe Some(true)
+        X509Utils.verifyPublicKeyIdentifier(
+          cert.toTlsCertificate,
+          serverKeySet.ecdsa.get.key.getPublic.toSubjectPublicKeyInfo
+        ) shouldBe Some(true)
         println("CSR signed: " + cert.toTlsCertificate.getSubject)
       }
 
       "should read CRL" in {
         val issuer = PEM.certificate.fromResource("ocsp-crl-issuer.crt")
-        X509Utils.getCrlDistributionUrls(issuer).toList shouldBe List("http://crl3.digicert.com/DigiCertGlobalRootCA.crl", "http://crl4.digicert.com/DigiCertGlobalRootCA.crl")
+        X509Utils.getCrlDistributionUrls(issuer).toList shouldBe List(
+          "http://crl3.digicert.com/DigiCertGlobalRootCA.crl",
+          "http://crl4.digicert.com/DigiCertGlobalRootCA.crl"
+        )
         val crl = CRL.fromURL("http://crl3.digicert.com/ssca-sha2-g5.crl")
         assert(CRL.verify(crl, issuer), "Invalid CRL signature")
         println(crl.getIssuer)
@@ -67,16 +134,42 @@ class X509Test extends FreeSpec with Matchers {
       }
 
       "should create CRL" in {
-        val crl = CRL.build(certificationAuthority, Seq(RevokedCert(serverKeySet.rsa.get.certificate, x509.CRLReason.keyCompromise)))
-        assert(CRL.verify(crl, certificationAuthority.certificate), "Couldn't verify CRL signature")
+        val crl = CRL.build(
+          certificationAuthority,
+          Seq(
+            RevokedCert(
+              serverKeySet.rsa.get.certificate,
+              x509.CRLReason.keyCompromise
+            )
+          )
+        )
+        assert(
+          CRL.verify(crl, certificationAuthority.certificate),
+          "Couldn't verify CRL signature"
+        )
         assert(CRL.contains(crl, serverKeySet.rsa.get.certificate))
         println(PEM.encode(crl))
       }
 
       "should create OCSP response" in {
-        val ocsp = OCSP.response(certificationAuthority, Status(OCSP.id(certificationAuthority.certificate, BigInt(1)), OCSP.Status.revoked(CRLReason.keyCompromise)))
-        assert(OCSP.verify(ocsp, certificationAuthority.certificate), "Signature not valid")
-        assert(OCSP.Status.wrap(ocsp.getResponses).find(_.id.getSerialNumber == BigInt(1).underlying()).exists(_.isRevoked), "Not revoked")
+        val ocsp = OCSP.response(
+          certificationAuthority,
+          Status(
+            OCSP.id(certificationAuthority.certificate, BigInt(1)),
+            OCSP.Status.revoked(CRLReason.keyCompromise)
+          )
+        )
+        assert(
+          OCSP.verify(ocsp, certificationAuthority.certificate),
+          "Signature not valid"
+        )
+        assert(
+          OCSP.Status
+            .wrap(ocsp.getResponses)
+            .find(_.id.getSerialNumber == BigInt(1).underlying())
+            .exists(_.isRevoked),
+          "Not revoked"
+        )
       }
 
       "should read OCSP response" in {

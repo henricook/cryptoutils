@@ -1,4 +1,4 @@
-package com.karasiq.tls.x509
+package com.henricook.tls.x509
 
 import org.bouncycastle.asn1.ASN1Encodable
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
@@ -9,8 +9,17 @@ import scala.util.Try
 
 object CSRUtils {
   def extensionsOf(csr: PKCS10CertificationRequest): Seq[CertExtension] = {
-    Try(CertExtension.wrap(Extensions.getInstance(csr.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest).head.getAttrValues.getObjectAt(0))))
-      .getOrElse(Nil)
+    Try(
+      CertExtension.wrap(
+        Extensions.getInstance(
+          csr
+            .getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)
+            .head
+            .getAttrValues
+            .getObjectAt(0)
+        )
+      )
+    ).getOrElse(Nil)
   }
 
   def encodeExtensions(extensions: Set[CertExtension]): ASN1Encodable = {

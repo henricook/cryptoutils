@@ -1,4 +1,4 @@
-package com.karasiq.tls.internal
+package com.henricook.tls.internal
 
 import java.io._
 import java.net.{URI, URL}

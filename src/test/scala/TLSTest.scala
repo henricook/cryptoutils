@@ -2,9 +2,9 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
 
-import com.karasiq.tls._
-import com.karasiq.tls.internal.TLSUtils
-import com.karasiq.tls.x509._
+import com.henricook.tls._
+import com.henricook.tls.internal.TLSUtils
+import com.henricook.tls.x509._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.duration._
@@ -33,21 +33,29 @@ class TLSTest extends FlatSpec with Matchers {
   ignore should "connect to HTTPS" in {
     val address = new InetSocketAddress("howsmyssl.com", 443)
 
-    val wrapper = new TLSClientWrapper(CertificateVerifier.trustAll(), address) {
-      override protected def onInfo(message: String): Unit = {
-        println(message)
-      }
+    val wrapper =
+      new TLSClientWrapper(CertificateVerifier.trustAll(), address) {
+        override protected def onInfo(message: String): Unit = {
+          println(message)
+        }
 
-      override protected def onError(message: String, exc: Throwable): Unit = {
-        println(s"$message")
-        exc.printStackTrace()
+        override protected def onError(
+            message: String,
+            exc: Throwable
+        ): Unit = {
+          println(s"$message")
+          exc.printStackTrace()
+        }
       }
-    }
 
     val socket = SocketChannel.open(address)
     Exception.allCatch.andFinally(socket.close()) {
       val tlsSocket = wrapper(socket)
-      tlsSocket.write(asByteBuffer(s"GET /a/check HTTP/1.1\r\nHost: www.${address.getHostName}\r\n\r\n"))
+      tlsSocket.write(
+        asByteBuffer(
+          s"GET /a/check HTTP/1.1\r\nHost: www.${address.getHostName}\r\n\r\n"
+        )
+      )
       val response = read(tlsSocket)
       println(response)
       assert(response.startsWith("HTTP/1.1 200 OK"))
@@ -59,32 +67,87 @@ class TLSTest extends FlatSpec with Matchers {
     val keyGenerator = CertificateGenerator()
 
     def serverExtensions() = {
-      CertExtension.defaultExtensions() ++ Set(CertExtension.alternativeNames(dNSName = Seq("localhost"), iPAddress = Seq("127.0.0.1")))
+      CertExtension.defaultExtensions() ++ Set(
+        CertExtension.alternativeNames(
+          dNSName = Seq("localhost"),
+          iPAddress = Seq("127.0.0.1")
+        )
+      )
     }
 
-    val certificationAuthority = keyGenerator.generateEcdsa(X509Utils.subject("Localhost Root CA", "US", "California", "San Francisco", "Karasiq", "Cryptoutils Test Root CA", "karasiq@karasiq.com"), TLSUtils.getEllipticCurve("secp256k1"), extensions = CertExtension.certificationAuthorityExtensions(1))
+    val certificationAuthority = keyGenerator.generateEcdsa(
+      X509Utils.subject(
+        "Localhost Root CA",
+        "US",
+        "California",
+        "San Francisco",
+        "Karasiq",
+        "Cryptoutils Test Root CA",
+        "karasiq@karasiq.com"
+      ),
+      TLSUtils.getEllipticCurve("secp256k1"),
+      extensions = CertExtension.certificationAuthorityExtensions(1)
+    )
 
-    val serverKeySet = keyGenerator.generateKeySet(X509Utils.subject("Localhost Server", "US", "California", "San Francisco", "Karasiq", "Cryptoutils Test Server", "karasiq@karasiq.com"), 2048, 1024, TLSUtils.getEllipticCurve("secp256k1"), Some(certificationAuthority), BigInt(1), extensions = serverExtensions())
+    val serverKeySet = keyGenerator.generateKeySet(
+      X509Utils.subject(
+        "Localhost Server",
+        "US",
+        "California",
+        "San Francisco",
+        "Karasiq",
+        "Cryptoutils Test Server",
+        "karasiq@karasiq.com"
+      ),
+      2048,
+      1024,
+      TLSUtils.getEllipticCurve("secp256k1"),
+      Some(certificationAuthority),
+      BigInt(1),
+      extensions = serverExtensions()
+    )
 
-    val clientKeySet = keyGenerator.generateKeySet(X509Utils.subject("Localhost Client", "US", "California", "San Francisco", "Karasiq", "Cryptoutils Test Client", "karasiq@karasiq.com"), 2048, 1024, TLSUtils.getEllipticCurve("secp256k1"), Some(certificationAuthority), BigInt(2))
+    val clientKeySet = keyGenerator.generateKeySet(
+      X509Utils.subject(
+        "Localhost Client",
+        "US",
+        "California",
+        "San Francisco",
+        "Karasiq",
+        "Cryptoutils Test Client",
+        "karasiq@karasiq.com"
+      ),
+      2048,
+      1024,
+      TLSUtils.getEllipticCurve("secp256k1"),
+      Some(certificationAuthority),
+      BigInt(2)
+    )
 
-    val verifier = CertificateVerifier(CertificateStatusProvider.AlwaysValid, certificationAuthority.certificate)
+    val verifier = CertificateVerifier(
+      CertificateStatusProvider.AlwaysValid,
+      certificationAuthority.certificate
+    )
 
     val localhost = new InetSocketAddress("127.0.0.1", 4443)
 
     val promisedClientResult = Promise[String]()
     val promisedServerResult = Promise[String]()
 
-    val clientWrapper = new TLSClientWrapper(verifier, localhost, clientKeySet) {
-      override protected def onInfo(message: String): Unit = {
-        println(s"Client: $message")
-      }
+    val clientWrapper =
+      new TLSClientWrapper(verifier, localhost, clientKeySet) {
+        override protected def onInfo(message: String): Unit = {
+          println(s"Client: $message")
+        }
 
-      override protected def onError(message: String, exc: Throwable): Unit = {
-        println(s"Client: $message")
-        exc.printStackTrace()
+        override protected def onError(
+            message: String,
+            exc: Throwable
+        ): Unit = {
+          println(s"Client: $message")
+          exc.printStackTrace()
+        }
       }
-    }
 
     val serverWrapper = new TLSServerWrapper(serverKeySet, true, verifier) {
       override protected def onInfo(message: String): Unit = {
@@ -100,7 +163,11 @@ class TLSTest extends FlatSpec with Matchers {
     val clientThread = new Thread(new Runnable {
       override def run(): Unit = {
         val socket = SocketChannel.open(localhost)
-        val catcher = Exception.allCatch.withApply {exc ⇒ promisedClientResult.tryFailure(exc); throw exc}.andFinally(socket.close())
+        val catcher = Exception.allCatch
+          .withApply { exc ⇒
+            promisedClientResult.tryFailure(exc); throw exc
+          }
+          .andFinally(socket.close())
         catcher {
           val tlsSocket = clientWrapper(socket)
           tlsSocket.write(asByteBuffer("Client hello"))
@@ -113,7 +180,11 @@ class TLSTest extends FlatSpec with Matchers {
     val serverThread = new Thread(new Runnable {
       override def run(): Unit = {
         val socket = ServerSocketChannel.open()
-        val catcher = Exception.allCatch.withApply {exc ⇒ promisedServerResult.tryFailure(exc); throw exc}.andFinally(socket.close())
+        val catcher = Exception.allCatch
+          .withApply { exc ⇒
+            promisedServerResult.tryFailure(exc); throw exc
+          }
+          .andFinally(socket.close())
         catcher {
           socket.bind(localhost)
           val clientSocket = socket.accept()

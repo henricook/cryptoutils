@@ -1,4 +1,4 @@
-package com.karasiq.tls.internal
+package com.henricook.tls.internal
 
 import java.io.{FileDescriptor, InputStream, OutputStream}
 import java.net.{Socket, SocketAddress, SocketOption}
@@ -13,7 +13,8 @@ private[tls] object SocketChannelWrapper {
   def inputStream(connection: SocketChannel): InputStream = new InputStream {
     override def read(): Int = {
       val buffer = ByteBuffer.allocate(1)
-      if (connection.read(buffer) == -1) -1 else {
+      if (connection.read(buffer) == -1) -1
+      else {
         buffer.flip()
         buffer.get()
       }
@@ -45,7 +46,11 @@ private[tls] object SocketChannelWrapper {
   }
 }
 
-final private[tls] class SocketChannelWrapper(connection: SocketChannel, protocol: TlsProtocol) extends SocketChannel(connection.provider()) with SelChImpl {
+final private[tls] class SocketChannelWrapper(
+    connection: SocketChannel,
+    protocol: TlsProtocol
+) extends SocketChannel(connection.provider())
+    with SelChImpl {
   @inline
   private def selChOp[T](f: SelChImpl ⇒ T): T = connection match {
     case sc: SelChImpl ⇒
@@ -59,21 +64,32 @@ final private[tls] class SocketChannelWrapper(connection: SocketChannel, protoco
 
   override def kill(): Unit = selChOp(_.kill())
 
-  override def translateAndSetInterestOps(i: Int, selectionKey: SelectionKeyImpl): Unit = selChOp(_.translateAndSetInterestOps(i, selectionKey))
+  override def translateAndSetInterestOps(
+      i: Int,
+      selectionKey: SelectionKeyImpl
+  ): Unit = selChOp(_.translateAndSetInterestOps(i, selectionKey))
 
-  override def translateAndUpdateReadyOps(i: Int, selectionKey: SelectionKeyImpl): Boolean = selChOp(_.translateAndUpdateReadyOps(i, selectionKey))
+  override def translateAndUpdateReadyOps(
+      i: Int,
+      selectionKey: SelectionKeyImpl
+  ): Boolean = selChOp(_.translateAndUpdateReadyOps(i, selectionKey))
 
   override def getFDVal: Int = selChOp(_.getFDVal)
 
-  override def translateAndSetReadyOps(i: Int, selectionKey: SelectionKeyImpl): Boolean = selChOp(_.translateAndSetReadyOps(i, selectionKey))
+  override def translateAndSetReadyOps(
+      i: Int,
+      selectionKey: SelectionKeyImpl
+  ): Boolean = selChOp(_.translateAndSetReadyOps(i, selectionKey))
 
   override def shutdownInput(): SocketChannel = connection.shutdownInput()
 
   override def isConnectionPending: Boolean = connection.isConnectionPending
 
-  override def socket(): Socket = new SocketWrapper(connection.socket(), protocol)
+  override def socket(): Socket =
+    new SocketWrapper(connection.socket(), protocol)
 
-  override def setOption[T](name: SocketOption[T], value: T): SocketChannel = connection.setOption(name, value)
+  override def setOption[T](name: SocketOption[T], value: T): SocketChannel =
+    connection.setOption(name, value)
 
   override def getLocalAddress: SocketAddress = connection.getLocalAddress
 
@@ -84,7 +100,8 @@ final private[tls] class SocketChannelWrapper(connection: SocketChannel, protoco
     array.length
   }
 
-  override def write(srcs: Array[ByteBuffer], offset: Int, length: Int): Long = ???
+  override def write(srcs: Array[ByteBuffer], offset: Int, length: Int): Long =
+    ???
 
   override def isConnected: Boolean = connection.isConnected
 
@@ -99,11 +116,14 @@ final private[tls] class SocketChannelWrapper(connection: SocketChannel, protoco
     read
   }
 
-  override def read(dsts: Array[ByteBuffer], offset: Int, length: Int): Long = ???
+  override def read(dsts: Array[ByteBuffer], offset: Int, length: Int): Long =
+    ???
 
-  override def connect(remote: SocketAddress): Boolean = connection.connect(remote)
+  override def connect(remote: SocketAddress): Boolean =
+    connection.connect(remote)
 
-  override def bind(local: SocketAddress): SocketChannel = connection.bind(local)
+  override def bind(local: SocketAddress): SocketChannel =
+    connection.bind(local)
 
   override def shutdownOutput(): SocketChannel = connection.shutdownOutput()
 
@@ -116,7 +136,9 @@ final private[tls] class SocketChannelWrapper(connection: SocketChannel, protoco
     connection.close() // Connection close
   }
 
-  override def getOption[T](name: SocketOption[T]): T = connection.getOption(name)
+  override def getOption[T](name: SocketOption[T]): T =
+    connection.getOption(name)
 
-  override def supportedOptions(): util.Set[SocketOption[_]] = connection.supportedOptions()
+  override def supportedOptions(): util.Set[SocketOption[_]] =
+    connection.supportedOptions()
 }

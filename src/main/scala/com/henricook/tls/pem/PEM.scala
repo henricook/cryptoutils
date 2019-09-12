@@ -1,10 +1,10 @@
-package com.karasiq.tls.pem
+package com.henricook.tls.pem
 
 import java.io._
 
-import com.karasiq.tls.TLS
-import com.karasiq.tls.internal.BCConversions._
-import com.karasiq.tls.internal.ObjectLoader
+import com.henricook.tls.TLS
+import com.henricook.tls.internal.BCConversions._
+import com.henricook.tls.internal.ObjectLoader
 import org.apache.commons.io.IOUtils
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
@@ -15,7 +15,10 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter
 import org.bouncycastle.openssl.{PEMKeyPair, PEMParser}
 import org.bouncycastle.pkcs.PKCS10CertificationRequest
 
-case class PEMObjectLoader[+T](transform: PartialFunction[AnyRef, T], offset: Int = 0) extends ObjectLoader[T] {
+case class PEMObjectLoader[+T](
+    transform: PartialFunction[AnyRef, T],
+    offset: Int = 0
+) extends ObjectLoader[T] {
   require(offset >= 0, "Invalid PEM object offset")
 
   override def fromInputStream(inputStream: InputStream): T = {
@@ -34,8 +37,8 @@ case class PEMObjectLoader[+T](transform: PartialFunction[AnyRef, T], offset: In
 }
 
 /**
- * PEM encoding utility
- */
+  * PEM encoding utility
+  */
 object PEM {
   @throws[IOException]
   def encode(data: AnyRef): String = {
@@ -47,7 +50,12 @@ object PEM {
           writer.writeObject(new X509CertificateHolder(cert))
 
         case keyPair: AsymmetricCipherKeyPair ⇒
-          writer.writeObject(new PEMKeyPair(keyPair.getPublic.toSubjectPublicKeyInfo, keyPair.getPrivate.toPrivateKeyInfo))
+          writer.writeObject(
+            new PEMKeyPair(
+              keyPair.getPublic.toSubjectPublicKeyInfo,
+              keyPair.getPrivate.toPrivateKeyInfo
+            )
+          )
 
         case key: AsymmetricKeyParameter if key.isPrivate ⇒
           writer.writeObject(key.toPrivateKeyInfo)
@@ -114,6 +122,9 @@ object PEM {
 
   val keyPair = PEMObjectLoader {
     case kp: PEMKeyPair ⇒
-      new TLS.CertificateKeyPair(kp.getPublicKeyInfo.toAsymmetricKeyParameter, kp.getPrivateKeyInfo.toAsymmetricKeyParameter)
+      new TLS.CertificateKeyPair(
+        kp.getPublicKeyInfo.toAsymmetricKeyParameter,
+        kp.getPrivateKeyInfo.toAsymmetricKeyParameter
+      )
   }
 }
