@@ -1,14 +1,14 @@
 name := "cryptoutils"
 
-organization := "com.github.karasiq"
+organization := "com.github.henricook"
 
-version := "1.4.3"
+version := "1.5.1"
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
 scalaVersion := "2.13.0"
 
-crossScalaVersions := Seq("2.11.11", "2.12.4", "2.13.0")
+crossScalaVersions := Seq("2.11.12", "2.12.4", "2.13.0")
 
 resolvers += "softprops-maven" at "https://dl.bintray.com/content/softprops/maven"
 
