@@ -1,3 +1,5 @@
 target
 .idea
 .hydra
+.creds
+sonatype_upload.key

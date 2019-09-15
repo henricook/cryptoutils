@@ -3,6 +3,7 @@ package com.henricook.tls
 import java.net.InetSocketAddress
 import java.nio.channels.SocketChannel
 import java.security.SecureRandom
+import java.util
 
 import com.henricook.tls.internal.BCConversions.CipherSuiteId
 import com.henricook.tls.internal.{SocketChannelWrapper, TLSUtils}
@@ -11,6 +12,7 @@ import org.bouncycastle.crypto.tls._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
 class TLSClientWrapper(
@@ -32,6 +34,9 @@ class TLSClientWrapper(
       SecureRandom.getInstanceStrong
     )
     val client = new DefaultTlsClient() {
+      override def getClientExtensions(): util.Hashtable[Int, Array[Byte]] =
+        super.getClientExtensions.asInstanceOf[util.Hashtable[Int, Array[Byte]]]
+
       override def getMinimumVersion: ProtocolVersion = {
         TLSUtils.minVersion()
       }
