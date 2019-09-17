@@ -1,8 +1,6 @@
 name := "cryptoutils"
 
-organization := "com.henricook"
-
-version := "1.5.1"
+version := "1.5.2"
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
@@ -28,41 +26,34 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 )
 
-useGpg := true
+ThisBuild / organization := "com.henricook"
+ThisBuild / organizationName := "Henri Cook"
+ThisBuild / organizationHomepage := Some(url("https://github.com/henricook"))
 
-credentials += Credentials(Path.userHome / "repos" / "cryptoutils" / ".creds")
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/henricook/cryptoutils"),
+    "scm:git@github.com:henricook/cryptoutils.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(
+    id    = "henricook",
+    name  = "Henri Cook",
+    email = "github@henricook.com",
+    url   = url("https://www.henricook.com")
+  )
+)
 
-publishMavenStyle := true
+ThisBuild / description := "Cryptoutils for Scala 2.12 and 2.13 - Forked from Karasiq"
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/henricook/cryptoutils"))
 
-publishTo := {
+// Remove all additional repository other than Maven Central from POM
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
-
-publishArtifact in Test := false
-
-pomIncludeRepository := { _ ⇒ false }
-
-licenses := Seq("The MIT License" → url("http://opensource.org/licenses/MIT"))
-
-homepage := Some(url(s"https://github.com/henricook/${name.value}"))
-
-pomExtra := <scm>
-  <url>git@github.com:henricook/{name.value}.git</url>
-  <connection>scm:git:git@github.com:henricook/{name.value}.git</connection>
-</scm>
-  <developers>
-    <developer>
-      <id>henricook</id>
-      <name>Henri Cook</name>
-      <url>https://github.com/henricook</url>
-    </developer>
-    <developer>
-      <id>karasiq</id>
-      <name>Piston Karasiq</name>
-      <url>https://github.com/Karasiq</url>
-    </developer>
-  </developers>
+ThisBuild / publishMavenStyle := true
