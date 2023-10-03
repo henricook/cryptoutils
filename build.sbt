@@ -25,9 +25,9 @@ addCommandAlias("tq", "testQuick")
 
 libraryDependencies ++= Seq(
   "commons-io" % "commons-io" % "2.5",
-  "org.bouncycastle" % "bcprov-jdk15on" % "1.63" % "provided",
-  "org.bouncycastle" % "bcpkix-jdk15on" % "1.63" % "provided",
-  "org.bouncycastle" % "bctls-jdk15on" % "1.63" % "provided",
+  "org.bouncycastle" % "bcprov-jdk15on" % "1.70" % "provided",
+  "org.bouncycastle" % "bcpkix-jdk15on" % "1.70" % "provided",
+  "org.bouncycastle" % "bctls-jdk15on" % "1.70" % "provided",
   "com.typesafe" % "config" % "1.3.4",
   "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 )
