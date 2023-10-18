@@ -28,7 +28,7 @@ libraryDependencies ++= Seq(
   "org.bouncycastle" % "bcprov-jdk15on" % "1.63" % "provided",
   "org.bouncycastle" % "bcpkix-jdk15on" % "1.63" % "provided",
   "org.bouncycastle" % "bctls-jdk15on" % "1.63" % "provided",
-  "com.typesafe" % "config" % "1.3.4",
+  "com.typesafe" % "config" % "1.4.3",
   "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 )
 
