@@ -8,7 +8,7 @@ isSnapshot := version.value.endsWith("SNAPSHOT")
 
 scalaVersion := "2.13.12"
 
-val Scala212 = "2.12.18"
+val Scala212 = "2.12.20"
 val Scala213 = "2.13.12"
 val Scala3 = "3.3.1"
 
