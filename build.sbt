@@ -6,10 +6,10 @@ version := "1.5.3"
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.15"
 
 val Scala212 = "2.12.18"
-val Scala213 = "2.13.12"
+val Scala213 = "2.13.15"
 val Scala3 = "3.3.1"
 
 crossScalaVersions := Seq(Scala212, Scala213, Scala3)
