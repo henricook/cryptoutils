@@ -24,7 +24,7 @@ addCommandAlias("t", "test")
 addCommandAlias("tq", "testQuick")
 
 libraryDependencies ++= Seq(
-  "commons-io" % "commons-io" % "2.5",
+  "commons-io" % "commons-io" % "2.18.0",
   "org.bouncycastle" % "bcprov-jdk15on" % "1.63" % "provided",
   "org.bouncycastle" % "bcpkix-jdk15on" % "1.63" % "provided",
   "org.bouncycastle" % "bctls-jdk15on" % "1.63" % "provided",
